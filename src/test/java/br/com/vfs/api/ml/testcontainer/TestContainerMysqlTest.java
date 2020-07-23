@@ -1,6 +1,6 @@
-package br.com.vfs.api.cdc.testcontainer;
+package br.com.vfs.api.ml.testcontainer;
 
-import br.com.vfs.api.cdc.Application;
+import br.com.vfs.api.ml.Application;
 import org.junit.ClassRule;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
