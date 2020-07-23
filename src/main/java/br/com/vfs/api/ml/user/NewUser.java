@@ -13,7 +13,7 @@ import javax.validation.constraints.Size;
 public class NewUser {
     @NotBlank
     @Email
-    @UniqueValue(fieldName = "login", domainClass = User.class)
+    @UniqueValue(fieldName = "login", domainClass = User.class, message = "User already exists for the given email")
     private String login;
     @NotBlank
     @Size(min = 6)
