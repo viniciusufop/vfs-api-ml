@@ -1,5 +1,6 @@
 package br.com.vfs.api.ml.user;
 
+import br.com.vfs.api.ml.shared.annotations.UniqueValue;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import javax.validation.constraints.Size;
 public class NewUser {
     @NotBlank
     @Email
+    @UniqueValue(fieldName = "login", domainClass = User.class)
     private String login;
     @NotBlank
     @Size(min = 6)

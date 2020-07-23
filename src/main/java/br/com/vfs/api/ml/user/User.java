@@ -7,6 +7,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
@@ -30,6 +31,7 @@ public class User {
     private Long id;
     @NotBlank
     @Email
+    @Column(unique = true)
     private String login;
     @NotBlank
     @Size(min = 6)
