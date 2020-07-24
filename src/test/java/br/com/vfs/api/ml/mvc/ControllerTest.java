@@ -29,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ControllerTest extends TestContainerMysqlTest {
 
     private static final String URL_USER = "/api/user";
+    private static final String URL_CATEGORY = "/api/category";
 
     @Autowired private MockMvc mvc;
     @Autowired private ObjectMapper objectMapper;
@@ -51,6 +52,31 @@ public class ControllerTest extends TestContainerMysqlTest {
     void testUserTwo() throws Exception {
         final var builder = post(URL_USER)
                 .content("{ \"login\":\"test@mock.com\", \"password\":\"123456\" }")
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON);
+        final var resultFail = mvc.perform(builder).andExpect(status().isBadRequest()).andReturn();
+        final var errorMessage = objectMapper.readValue(resultFail.getResponse().getContentAsString(), ErrorMessage.class);
+        assertFalse(errorMessage.getErrors().isEmpty(), "Return fail");
+    }
+
+    @Test
+    @Order(3)
+    @DisplayName("create a new category")
+    void testCategoryOne() throws Exception {
+        final var builder = post(URL_CATEGORY)
+                .content("{ \"name\":\"Phone\" }")
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON);
+        final var resultCreated = mvc.perform(builder).andExpect(status().isOk()).andReturn();
+        assertNotNull(resultCreated.getResponse(),"Invalid message return");
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("not create a new category with duplicate name")
+    void testCategoryTwo() throws Exception {
+        final var builder = post(URL_CATEGORY)
+                .content("{ \"name\":\"Phone\" }")
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON);
         final var resultFail = mvc.perform(builder).andExpect(status().isBadRequest()).andReturn();
