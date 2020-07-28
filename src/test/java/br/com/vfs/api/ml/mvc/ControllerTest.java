@@ -28,9 +28,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(OrderAnnotation.class)
 public class ControllerTest extends TestContainerMysqlTest {
 
+    private static final String HEADER_STRING = "Authorization";
     private static final String URL_USER = "/api/user";
+    private static final String URL_LOGIN = "/api/login";
     private static final String URL_CATEGORY = "/api/category";
 
+    private static String token;
     @Autowired private MockMvc mvc;
     @Autowired private ObjectMapper objectMapper;
 
@@ -61,10 +64,36 @@ public class ControllerTest extends TestContainerMysqlTest {
 
     @Test
     @Order(3)
-    @DisplayName("create a new category")
+    @DisplayName("login a user")
+    void testLoginOne() throws Exception {
+        final var builder = post(URL_LOGIN)
+                .content("{ \"username\":\"test@mock.com\", \"password\":\"123456\" }")
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON);
+        final var resultCreated = mvc.perform(builder).andExpect(status().isOk()).andReturn();
+        assertNotNull(resultCreated.getResponse().getHeader(HEADER_STRING),"Invalid message return");
+        token = resultCreated.getResponse().getHeader(HEADER_STRING);
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("invalid authentication")
     void testCategoryOne() throws Exception {
         final var builder = post(URL_CATEGORY)
                 .content("{ \"name\":\"Phone\" }")
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON);
+        final var resultCreated = mvc.perform(builder).andExpect(status().isForbidden()).andReturn();
+        assertNotNull(resultCreated.getResponse(),"Invalid message return");
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("create a new category")
+    void testCategoryTwo() throws Exception {
+        final var builder = post(URL_CATEGORY)
+                .content("{ \"name\":\"Phone\" }")
+                .header(HEADER_STRING, token)
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON);
         final var resultCreated = mvc.perform(builder).andExpect(status().isOk()).andReturn();
@@ -72,11 +101,12 @@ public class ControllerTest extends TestContainerMysqlTest {
     }
 
     @Test
-    @Order(4)
+    @Order(6)
     @DisplayName("not create a new category with duplicate name")
-    void testCategoryTwo() throws Exception {
+    void testCategoryThree() throws Exception {
         final var builder = post(URL_CATEGORY)
                 .content("{ \"name\":\"Phone\" }")
+                .header(HEADER_STRING, token)
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON);
         final var resultFail = mvc.perform(builder).andExpect(status().isBadRequest()).andReturn();
