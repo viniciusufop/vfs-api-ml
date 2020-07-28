@@ -15,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -32,6 +31,7 @@ public class ControllerTest extends TestContainerMysqlTest {
     private static final String URL_USER = "/api/user";
     private static final String URL_LOGIN = "/api/login";
     private static final String URL_CATEGORY = "/api/category";
+    private static final String URL_PRODUCT = "/api/product";
 
     private static String token;
     @Autowired private MockMvc mvc;
@@ -112,5 +112,29 @@ public class ControllerTest extends TestContainerMysqlTest {
         final var resultFail = mvc.perform(builder).andExpect(status().isBadRequest()).andReturn();
         final var errorMessage = objectMapper.readValue(resultFail.getResponse().getContentAsString(), ErrorMessage.class);
         assertFalse(errorMessage.getErrors().isEmpty(), "Return fail");
+    }
+
+    @Test
+    @Order(7)
+    @DisplayName("create a new product")
+    void testProductOne() throws Exception {
+        final var builder = post(URL_PRODUCT)
+                .content("{\n" +
+                        "    \"name\": \"Xiaomi MI 9\",\n" +
+                        "    \"description\": \"# Celular Top\",\n" +
+                        "    \"features\": [\n" +
+                        "        {\"name\": \"Marca\", \"value\": \"Xiaomi\"},\n" +
+                        "        {\"name\": \"Modelo\", \"value\": \"Mi 9\"},\n" +
+                        "        {\"name\": \"Memoria RAM\", \"value\": \"128Gb\"}\n" +
+                        "    ],\n" +
+                        "    \"price\": 2300.00,\n" +
+                        "    \"quantity\": 140,\n" +
+                        "    \"idCategory\": 1\n" +
+                        "}")
+                .header(HEADER_STRING, token)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON);
+        final var resultCreated = mvc.perform(builder).andExpect(status().isOk()).andReturn();
+        assertNotNull(resultCreated.getResponse(),"Invalid message return");
     }
 }
