@@ -3,16 +3,11 @@ package br.com.vfs.api.ml.user;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PastOrPresent;
@@ -42,6 +37,6 @@ public class User {
 
     public User(@NotBlank @Email String login, @NotBlank @Size(min = 6) String password) {
         this.login = login;
-        this.password = DigestUtils.sha3_256Hex(password);
+        this.password = new BCryptPasswordEncoder().encode(password);
     }
 }
