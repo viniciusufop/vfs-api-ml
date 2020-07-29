@@ -8,6 +8,7 @@ import br.com.vfs.api.ml.user.UserRepository;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
@@ -26,6 +27,7 @@ public class NewProduct {
     private String description;
     @NotNull
     @Size(min = 3)
+    @Valid
     private List<NewFeature> features;
     @NotNull
     @Positive
