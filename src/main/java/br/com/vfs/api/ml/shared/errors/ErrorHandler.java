@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
@@ -26,6 +27,15 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
         var url = ((ServletWebRequest) request).getRequest().getRequestURI();
         var errorMessage = new ErrorMessage(errors, url);
         return super.handleExceptionInternal(ex, errorMessage, headers, status, request);
+    }
+
+    @ExceptionHandler(IllegalAccessException.class)
+    protected ResponseEntity<Object> handle(final IllegalAccessException exception, final WebRequest request){
+        var errors = List.of(exception.getMessage());
+        log.info("M=IllegalAccessException, errors:{}", exception.getMessage());
+        var url = ((ServletWebRequest) request).getRequest().getRequestURI();
+        var errorMessage = new ErrorMessage(errors, url);
+        return super.handleExceptionInternal(exception, errorMessage, null, HttpStatus.FORBIDDEN, request);
     }
 
     private List<String> getErrors(final MethodArgumentNotValidException ex) {

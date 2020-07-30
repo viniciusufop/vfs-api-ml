@@ -18,6 +18,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Data
@@ -31,10 +32,11 @@ public class User {
     private Long id;
     @NotBlank
     @Email
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String login;
     @NotBlank
     @Size(min = 6)
+    @Column(nullable = false)
     private String password;
     @CreatedDate
     @PastOrPresent
@@ -43,5 +45,9 @@ public class User {
     public User(@NotBlank @Email String login, @NotBlank @Size(min = 6) String password) {
         this.login = login;
         this.password = new BCryptPasswordEncoder().encode(password);
+    }
+
+    public boolean isUser(final String username) {
+        return Objects.nonNull(username) && login.equals(username);
     }
 }

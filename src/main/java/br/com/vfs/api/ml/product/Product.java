@@ -1,12 +1,14 @@
 package br.com.vfs.api.ml.product;
 
 import br.com.vfs.api.ml.category.Category;
+import br.com.vfs.api.ml.shared.security.UserLogged;
 import br.com.vfs.api.ml.user.User;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -24,7 +26,9 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -66,6 +70,10 @@ public class Product implements Serializable {
     @NotNull
     @ManyToOne(optional = false)
     private User user;
+    @ElementCollection
+    @CollectionTable
+    private Set<String> images = new HashSet<>();
+
 
     public Product(@NotBlank final String name, @NotNull @Size(max = 1000)final String description,
                    @NotNull @Size(min = 3) final List<Feature> features, @NotNull @Positive final BigDecimal price,
@@ -78,5 +86,12 @@ public class Product implements Serializable {
         this.quantity = quantity;
         this.category = category;
         this.user = user;
+    }
+
+    public void addImage(final MultipartFile file, final UserLogged userLogged, final ImageStoreService imageStoreService) throws IllegalAccessException {
+        if(!user.isUser(userLogged.getUsername()))
+            throw new IllegalAccessException("Product does not belong to the user!");
+        final var url = imageStoreService.upload(file);
+        images.add(url);
     }
 }
