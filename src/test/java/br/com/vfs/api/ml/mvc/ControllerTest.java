@@ -12,12 +12,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -32,6 +36,7 @@ public class ControllerTest extends TestContainerMysqlTest {
     private static final String URL_LOGIN = "/api/login";
     private static final String URL_CATEGORY = "/api/category";
     private static final String URL_PRODUCT = "/api/product";
+    private static final String URL_PRODUCT_IMAGE = "/api/product/1/image";
 
     private static String token;
     @Autowired private MockMvc mvc;
@@ -134,6 +139,22 @@ public class ControllerTest extends TestContainerMysqlTest {
                 .header(HEADER_STRING, token)
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON);
+        final var resultCreated = mvc.perform(builder).andExpect(status().isOk()).andReturn();
+        assertNotNull(resultCreated.getResponse(),"Invalid message return");
+    }
+
+    @Test
+    @Order(8)
+    @DisplayName("add image a product")
+    void testProductImageOne() throws Exception {
+        final var resource = new ClassPathResource("image.jpeg").getInputStream();
+        final var file = new MockMultipartFile("file", "image.jpeg", MediaType.IMAGE_JPEG_VALUE, resource.readAllBytes());
+        final var builder = multipart(URL_PRODUCT_IMAGE)
+                .file(file)
+                .header(HEADER_STRING, token)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .accept(APPLICATION_JSON);
+
         final var resultCreated = mvc.perform(builder).andExpect(status().isOk()).andReturn();
         assertNotNull(resultCreated.getResponse(),"Invalid message return");
     }
