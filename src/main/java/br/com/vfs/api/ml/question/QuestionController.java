@@ -1,4 +1,4 @@
-package br.com.vfs.api.ml.opinion;
+package br.com.vfs.api.ml.question;
 
 import br.com.vfs.api.ml.product.ProductRepository;
 import br.com.vfs.api.ml.shared.security.UserLogged;
@@ -14,25 +14,33 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/opinion")
-public class OpinionController {
+@RequestMapping("api/question")
+public class QuestionController {
+
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
-    private final OpinionRepository opinionRepository;
+    private final EmailNotifyService emailNotifyService;
+    
     @ResponseStatus(OK)
     @PostMapping
     @Transactional
-    public void create(@RequestBody @Valid final NewOpinion newOpinion,
-                       @AuthenticationPrincipal final UserLogged userLogged) {
-        log.info("M=create, NewOpinion={}, user={}", newOpinion, userLogged.getUsername());
-        final var opinion = newOpinion.toModel(userLogged, userRepository, productRepository);
-        log.info("M=create, opinion={}, user={}", opinion, userLogged.getUsername());
-        opinionRepository.save(opinion);
+    public List<QuestionResponse> create(@RequestBody @Valid final NewQuestion newQuestion,
+                                 @AuthenticationPrincipal final UserLogged userLogged) {
+        log.info("M=create, newQuestion={}, user={}", newQuestion, userLogged.getUsername());
+        final var product = newQuestion.toProduct(productRepository);
+        product.addQuestion(newQuestion, userLogged, userRepository, emailNotifyService);
+        productRepository.save(product);
+        return product.getQuestions()
+                .stream()
+                .map(QuestionResponse::new)
+                .collect(Collectors.toList());
     }
 }
