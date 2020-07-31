@@ -38,6 +38,7 @@ public class ControllerTest extends TestContainerMysqlTest {
     private static final String URL_PRODUCT = "/api/product";
     private static final String URL_PRODUCT_IMAGE = "/api/product/1/image";
     private static final String URL_OPINION = "/api/opinion";
+    private static final String URL_QUESTION = "/api/question";
 
     private static String token;
     @Autowired private MockMvc mvc;
@@ -178,4 +179,21 @@ public class ControllerTest extends TestContainerMysqlTest {
         final var resultCreated = mvc.perform(builder).andExpect(status().isOk()).andReturn();
         assertNotNull(resultCreated.getResponse(),"Invalid message return");
     }
+
+    @Test
+    @Order(10)
+    @DisplayName("create a new question associate a product")
+    void testQuestionOne() throws Exception {
+        final var builder = post(URL_QUESTION)
+                .content("{\n" +
+                        "  \"idProduct\": 1,\n" +
+                        "  \"title\": \"TOPZERA\"\n" +
+                        "}")
+                .header(HEADER_STRING, token)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON);
+        final var resultCreated = mvc.perform(builder).andExpect(status().isOk()).andReturn();
+        assertNotNull(resultCreated.getResponse(),"Invalid message return");
+    }
+
 }

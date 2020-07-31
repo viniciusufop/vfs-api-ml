@@ -8,7 +8,7 @@ import javax.validation.constraints.NotBlank;
 
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(of = "key")
+@EqualsAndHashCode(of = "name")
 public class NewFeature {
     @NotBlank
     private String name;

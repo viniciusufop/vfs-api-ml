@@ -104,8 +104,8 @@ public class Product implements Serializable {
 
     public void addQuestion(final NewQuestion newQuestion, final UserLogged userLogged, final UserRepository userRepository,
                             final EmailNotifyService emailNotifyService) {
-        final var question = newQuestion.toModel(userLogged, userRepository, this);
-        question.notify(emailNotifyService);
+        final var question = newQuestion.toModel(userLogged, userRepository);
+        question.notify(emailNotifyService, this);
         questions.add(question);
     }
 }

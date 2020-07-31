@@ -37,10 +37,9 @@ public class QuestionController {
         log.info("M=create, newQuestion={}, user={}", newQuestion, userLogged.getUsername());
         final var product = newQuestion.toProduct(productRepository);
         product.addQuestion(newQuestion, userLogged, userRepository, emailNotifyService);
-        productRepository.save(product);
-        return product.getQuestions()
+        return productRepository.save(product).getQuestions()
                 .stream()
-                .map(QuestionResponse::new)
+                .map(q -> new QuestionResponse(q, product))
                 .collect(Collectors.toList());
     }
 }

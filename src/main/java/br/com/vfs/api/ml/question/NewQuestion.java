@@ -21,10 +21,10 @@ public class NewQuestion {
     @ExistElement(domainClass = Product.class)
     private Long idProduct;
 
-    public Question toModel(final UserLogged userLogged, final UserRepository userRepository, final Product product){
+    public Question toModel(final UserLogged userLogged, final UserRepository userRepository){
         final var user = userRepository.findByLogin(userLogged.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("user not found"));
-        return new Question(title, product, user);
+        return new Question(title, user);
     }
 
     public Product toProduct(ProductRepository productRepository) {
