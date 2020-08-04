@@ -1,6 +1,6 @@
-package br.com.vfs.api.ml.product;
+package br.com.vfs.api.ml.product.detail;
 
-import br.com.vfs.api.ml.product.detail.ProductDetailResponse;
+import br.com.vfs.api.ml.product.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -25,9 +25,9 @@ import static org.springframework.http.HttpStatus.OK;
 public class ProductDetailController {
 
     private final ProductRepository productRepository;
+
     @ResponseStatus(OK)
     @GetMapping("/{id}")
-    @Transactional
     public ProductDetailResponse findById(@PathVariable("id") @NotNull @Valid final Long id){
         log.info("M=findById, id={}", id);
         final var product = productRepository.findById(id).orElseThrow();
@@ -42,7 +42,7 @@ public class ProductDetailController {
     }
 
     private <T> void setCollectionAttribute(final Collection<T> list, final SetCollection<T> setter) {
-        if(CollectionUtils.isNotEmpty(list))setter.set(list);
+        if(CollectionUtils.isNotEmpty(list)) setter.set(list);
     }
 }
 

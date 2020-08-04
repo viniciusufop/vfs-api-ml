@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -194,6 +195,18 @@ public class ControllerTest extends TestContainerMysqlTest {
                 .accept(APPLICATION_JSON);
         final var resultCreated = mvc.perform(builder).andExpect(status().isOk()).andReturn();
         assertNotNull(resultCreated.getResponse(),"Invalid message return");
+    }
+
+    @Test
+    @Order(11)
+    @DisplayName("find product details by id")
+    void testProductDetailOne() throws Exception {
+        final var builder = get(URL_PRODUCT + "/1")
+                .header(HEADER_STRING, token)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON);
+        final var resultCreated = mvc.perform(builder).andExpect(status().isOk()).andReturn();
+        assertNotNull(resultCreated.getResponse().getContentAsString(),"Invalid message return");
     }
 
 }
