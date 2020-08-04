@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
-import static org.springframework.http.HttpStatus.MOVED_TEMPORARILY;
+import static org.springframework.http.HttpStatus.FOUND;
 
 @Slf4j
 @RestController
@@ -38,7 +38,7 @@ public class PurchaseController {
         dataBinder.addValidators(new QuantityByProductValidator(productRepository));
     }
 
-    @ResponseStatus(MOVED_TEMPORARILY)
+    @ResponseStatus(FOUND)
     @PostMapping
     @Transactional
     public String create(@RequestBody @Valid final NewPurchase newPurchase,

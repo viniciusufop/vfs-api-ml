@@ -40,6 +40,7 @@ public class ControllerTest extends TestContainerMysqlTest {
     private static final String URL_PRODUCT_IMAGE = "/api/product/1/image";
     private static final String URL_OPINION = "/api/opinion";
     private static final String URL_QUESTION = "/api/question";
+    private static final String URL_PURCHASE = "/api/purchase";
 
     private static String token;
     @Autowired private MockMvc mvc;
@@ -206,6 +207,40 @@ public class ControllerTest extends TestContainerMysqlTest {
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON);
         final var resultCreated = mvc.perform(builder).andExpect(status().isOk()).andReturn();
+        assertNotNull(resultCreated.getResponse().getContentAsString(),"Invalid message return");
+    }
+
+    @Test
+    @Order(12)
+    @DisplayName("purchase from product")
+    void testPurchaseOne() throws Exception {
+        final var builder = post(URL_PURCHASE)
+                .content("{\n" +
+                        "  \"gateway\": \"PAYPAL\",\n" +
+                        "  \"idProduct\": 1,\n" +
+                        "  \"quantity\": 20\n" +
+                        "}")
+                .header(HEADER_STRING, token)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON);
+        final var resultCreated = mvc.perform(builder).andExpect(status().isFound()).andReturn();
+        assertNotNull(resultCreated.getResponse().getContentAsString(),"Invalid message return");
+    }
+
+    @Test
+    @Order(13)
+    @DisplayName("invalid purchase from product by quantity no in stoke")
+    void testPurchaseTwo() throws Exception {
+        final var builder = post(URL_PURCHASE)
+                .content("{\n" +
+                        "  \"gateway\": \"PAYPAL\",\n" +
+                        "  \"idProduct\": 1,\n" +
+                        "  \"quantity\": 2000\n" +
+                        "}")
+                .header(HEADER_STRING, token)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON);
+        final var resultCreated = mvc.perform(builder).andExpect(status().isBadRequest()).andReturn();
         assertNotNull(resultCreated.getResponse().getContentAsString(),"Invalid message return");
     }
 
