@@ -47,7 +47,7 @@ public class ProductDetailResponse implements Serializable {
 
     public void setQuestions(final Collection<Question> questions) {
         Assert.isTrue(CollectionUtils.isNotEmpty(questions), "questions not empty value");
-        this.questions = questions.stream().map(QuestionResponse::new).collect(Collectors.toList());;
+        this.questions = questions.stream().map(QuestionResponse::new).collect(Collectors.toList());
     }
 
     public void setOpinions(final Collection<Opinion> opinions) {
