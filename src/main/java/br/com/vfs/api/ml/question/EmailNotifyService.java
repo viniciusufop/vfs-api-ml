@@ -1,6 +1,7 @@
 package br.com.vfs.api.ml.question;
 
 import br.com.vfs.api.ml.product.Product;
+import br.com.vfs.api.ml.purchase.Purchase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -22,5 +23,23 @@ public class EmailNotifyService {
               , product.getId()
               , question.getUser().getLogin());
       log.info("M=send, email body={}", bodyEmail);
+    }
+
+    public void send(final Purchase purchase) {
+        log.info("M=send, purchase={} product={}, from user={}", purchase.getId(), purchase.getProduct().getId(),
+                purchase.getProduct().getUser().getLogin());
+        final var bodyEmail = String.format(
+                "Hi %s, \n" +
+                        "\t You received a new purchase by product: \n" +
+                        "Purchase: %s \n" +
+                        "Quantity: %s \n" +
+                        "Product: %s \n" +
+                        "From: %s"
+                , purchase.getProduct().getUser().getLogin()
+                , purchase.getId()
+                , purchase.getQuantity()
+                , purchase.getProduct().getName()
+                , purchase.getBuyer().getLogin());
+        log.info("M=send, email body={}", bodyEmail);
     }
 }

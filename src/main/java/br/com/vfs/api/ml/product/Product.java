@@ -8,6 +8,7 @@ import br.com.vfs.api.ml.question.Question;
 import br.com.vfs.api.ml.shared.security.UserLogged;
 import br.com.vfs.api.ml.user.User;
 import br.com.vfs.api.ml.user.UserRepository;
+import io.jsonwebtoken.lang.Assert;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -111,5 +112,16 @@ public class Product implements Serializable {
         final var question = newQuestion.toModel(userLogged, userRepository);
         question.notify(emailNotifyService, this);
         questions.add(question);
+    }
+
+    public boolean hasStock(final int quantity) {
+        Assert.isTrue(quantity > 0, "quantity has to be positive");
+        return this.quantity >= quantity;
+    }
+
+    public void removeStock(final int quantity) {
+        Assert.isTrue(quantity > 0, "quantity has to be positive");
+        this.quantity -= quantity;
+        Assert.isTrue(this.quantity >= 0, "stock not have be negative");
     }
 }
