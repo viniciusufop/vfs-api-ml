@@ -1,6 +1,7 @@
 package br.com.vfs.api.ml.product;
 
 import br.com.vfs.api.ml.category.Category;
+import br.com.vfs.api.ml.opinion.Opinion;
 import br.com.vfs.api.ml.question.EmailNotifyService;
 import br.com.vfs.api.ml.question.NewQuestion;
 import br.com.vfs.api.ml.question.Question;
@@ -23,6 +24,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
@@ -81,6 +83,8 @@ public class Product implements Serializable {
     @ElementCollection
     @CollectionTable
     private List<Question> questions = new ArrayList<>();
+    @OneToMany(mappedBy = "product")
+    private List<Opinion> opinions;
 
     public Product(@NotBlank final String name, @NotNull @Size(max = 1000)final String description,
                    @NotNull @Size(min = 3) final List<Feature> features, @NotNull @Positive final BigDecimal price,

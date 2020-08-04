@@ -13,6 +13,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -31,11 +32,18 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(IllegalAccessException.class)
     protected ResponseEntity<Object> handle(final IllegalAccessException exception, final WebRequest request){
-        var errors = List.of(exception.getMessage());
         log.info("M=IllegalAccessException, errors:{}", exception.getMessage());
         var url = ((ServletWebRequest) request).getRequest().getRequestURI();
-        var errorMessage = new ErrorMessage(errors, url);
+        var errorMessage = new ErrorMessage(List.of(exception.getMessage()), url);
         return super.handleExceptionInternal(exception, errorMessage, null, HttpStatus.FORBIDDEN, request);
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    protected ResponseEntity<Object> handle(final NoSuchElementException exception, final WebRequest request){
+        log.info("M=NoSuchElementException, errors:{}", exception.getMessage());
+        var url = ((ServletWebRequest) request).getRequest().getRequestURI();
+        var errorMessage = new ErrorMessage(List.of(exception.getMessage()), url);
+        return super.handleExceptionInternal(exception, errorMessage, null, HttpStatus.NOT_FOUND, request);
     }
 
     private List<String> getErrors(final MethodArgumentNotValidException ex) {
