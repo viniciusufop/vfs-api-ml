@@ -23,7 +23,7 @@ public class WebSecurityConfig  extends WebSecurityConfigurerAdapter {
     protected void configure(final HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers("/v2/api-docs", "/configuration/**", "/swagger*/**", "/webjars/**").permitAll()
-                .antMatchers(POST, "/api/user", "/api/login").permitAll()
+                .antMatchers(POST, "/api/user", "/api/login", "/api/payment").permitAll()
                 .anyRequest().authenticated()
                 .and().cors()
                 .and().csrf().disable()

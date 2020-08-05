@@ -26,7 +26,7 @@ import static org.springframework.http.HttpStatus.FOUND;
 @RequiredArgsConstructor
 public class PurchaseController {
 
-    private static final String URL_REDIRECT_CONFIRM = "http:/localhost:8080/api/purchase/confirm";
+    private static final String URL_REDIRECT_CONFIRM = "http:/localhost:8080/api/payment";
 
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
