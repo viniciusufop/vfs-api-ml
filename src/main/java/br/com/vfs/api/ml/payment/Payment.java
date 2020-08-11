@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.util.Assert;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -25,6 +26,7 @@ import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static br.com.vfs.api.ml.payment.PaymentStatus.ERRO;
 import static br.com.vfs.api.ml.payment.PaymentStatus.SUCESSO;
 
 @Data
@@ -54,10 +56,7 @@ public class Payment {
     public Payment(@NotNull Purchase purchase, @NotBlank String code, @NotNull PaymentStatus status) {
         this.purchase = purchase;
         this.code = code;
-        this.status = status;
-        if(status.equals(SUCESSO)){
-            this.purchase.finalized();
-        }
+        setNewStatus(status);
     }
 
     public void process(final EmailNotifyService emailNotifyService, final List<PaymentNotify> paymentNotifies) {
@@ -65,5 +64,17 @@ public class Payment {
             paymentNotifies.forEach(paymentNotify -> paymentNotify.notify(this));
         }
         emailNotifyService.send(this);
+    }
+
+    public boolean isSuccess(){
+        return status.isPay();
+    }
+
+    public void setNewStatus(PaymentStatus status){
+        Assert.isTrue(!isSuccess(), "payment already successfully processed");
+        this.status = status;
+        if(isSuccess()){
+            this.purchase.finalized();
+        }
     }
 }

@@ -12,6 +12,7 @@ import io.jsonwebtoken.lang.Assert;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.web.multipart.MultipartFile;
@@ -84,6 +85,7 @@ public class Product implements Serializable {
     @ElementCollection
     @CollectionTable
     private List<Question> questions = new ArrayList<>();
+    @ToString.Exclude
     @OneToMany(mappedBy = "product")
     private List<Opinion> opinions;
 
