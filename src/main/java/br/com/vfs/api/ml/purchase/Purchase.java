@@ -65,4 +65,12 @@ public class Purchase {
         Assert.isTrue(StringUtils.isNoneBlank(urlRedirectConfirm), "urlRedirectConfirm is required");
         return gateway.redirectURL(this, urlRedirectConfirm);
     }
+
+    public boolean isFinally() {
+        return status.isFinally();
+    }
+
+    public void finalized() {
+        this.status = PurchaseStatus.FINALLY;
+    }
 }

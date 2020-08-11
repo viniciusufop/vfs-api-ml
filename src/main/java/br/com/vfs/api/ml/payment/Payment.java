@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -24,6 +25,8 @@ import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static br.com.vfs.api.ml.payment.PaymentStatus.SUCESSO;
+
 @Data
 @Entity
 @NoArgsConstructor
@@ -38,7 +41,7 @@ public class Payment {
     @PastOrPresent
     private LocalDateTime createAt;
     @NotNull
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Purchase purchase;
     @NotBlank
     @Column(unique = true, nullable = false)
@@ -52,6 +55,9 @@ public class Payment {
         this.purchase = purchase;
         this.code = code;
         this.status = status;
+        if(status.equals(SUCESSO)){
+            this.purchase.finalized();
+        }
     }
 
     public void process(final EmailNotifyService emailNotifyService, final List<PaymentNotify> paymentNotifies) {
