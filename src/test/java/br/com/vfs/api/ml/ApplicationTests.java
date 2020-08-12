@@ -1,13 +1,13 @@
 package br.com.vfs.api.ml;
 
-import br.com.vfs.api.ml.testcontainer.TestContainerMysqlTest;
+import br.com.vfs.api.ml.testcontainer.TestContainerTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-class ApplicationTests extends TestContainerMysqlTest {
+class ApplicationTests extends TestContainerTest {
 
 	@Test
 	void contextLoads() {

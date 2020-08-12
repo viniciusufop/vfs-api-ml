@@ -1,7 +1,7 @@
 package br.com.vfs.api.ml.mvc;
 
 import br.com.vfs.api.ml.shared.errors.ErrorMessage;
-import br.com.vfs.api.ml.testcontainer.TestContainerMysqlTest;
+import br.com.vfs.api.ml.testcontainer.TestContainerTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
 @TestMethodOrder(OrderAnnotation.class)
-public class ControllerTest extends TestContainerMysqlTest {
+public class ControllerTest extends TestContainerTest {
 
     private static final String HEADER_STRING = "Authorization";
     private static final String URL_USER = "/api/user";
@@ -41,6 +41,7 @@ public class ControllerTest extends TestContainerMysqlTest {
     private static final String URL_OPINION = "/api/opinion";
     private static final String URL_QUESTION = "/api/question";
     private static final String URL_PURCHASE = "/api/purchase";
+    private static final String URL_PAYMENT_PAYPAL = "/api/payment-paypal";
 
     private static String token;
     @Autowired private MockMvc mvc;
@@ -244,4 +245,20 @@ public class ControllerTest extends TestContainerMysqlTest {
         assertNotNull(resultCreated.getResponse().getContentAsString(),"Invalid message return");
     }
 
+    @Test
+    @Order(14)
+    @DisplayName("paypal payment from purchase")
+    void testPaymentPaypalOne() throws Exception {
+        final var builder = post(URL_PAYMENT_PAYPAL)
+                .content("{\n" +
+                        "  \"idPurchase\": \"1\",\n" +
+                        "  \"codePayment\": 11234567,\n" +
+                        "  \"status\": 1\n" +
+                        "}")
+                .header(HEADER_STRING, token)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON);
+        final var resultCreated = mvc.perform(builder).andExpect(status().isOk()).andReturn();
+        assertNotNull(resultCreated.getResponse().getContentAsString(),"Invalid message return");
+    }
 }

@@ -1,0 +1,19 @@
+- request:
+    method: POST
+    url: /mock/invoice
+  response:
+    status: 200
+    headers:
+      content-type: application/json
+    body: >
+      {}
+
+- request:
+    method: POST
+    url: /mock/ranking-vendor
+  response:
+    status: 200
+    headers:
+      content-type: application/json
+    body: >
+      {}
