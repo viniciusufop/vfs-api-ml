@@ -1,9 +1,6 @@
 package br.com.vfs.api.ml.payment;
 
-import br.com.vfs.api.ml.payment.notify.InvoiceNotify;
-import br.com.vfs.api.ml.payment.notify.RankingVendorNotify;
 import br.com.vfs.api.ml.purchase.PurchaseRepository;
-import br.com.vfs.api.ml.question.EmailNotifyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.WebDataBinder;
@@ -17,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
-
 import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
@@ -26,9 +22,7 @@ import static org.springframework.http.HttpStatus.OK;
 public class PaymentController {
 
     private final PurchaseRepository purchaseRepository;
-    private final EmailNotifyService emailNotifyService;
-    private final InvoiceNotify invoiceNotify;
-    private final RankingVendorNotify rankingVendorNotify;
+    private final ProcessEventNewPayment processEventNewPayment;
 
     @InitBinder("newPayment")
     public void init(final WebDataBinder dataBinder){
@@ -55,13 +49,8 @@ public class PaymentController {
     private void process(final NewPayment newPayment){
         log.info("M=process, newPayment={}", newPayment);
         final var purchase = purchaseRepository.findById(newPayment.getIdPurchase()).orElseThrow();
-        final var payment = newPayment.toModel(purchase);
-        purchase.addNewPayment(payment);
+        purchase.addNewPayment(newPayment);
         purchaseRepository.save(purchase);
-        if(purchase.isFinally()){
-            invoiceNotify.notify(purchase);
-            rankingVendorNotify.notify(purchase);
-        }
-        emailNotifyService.send(payment);
+        processEventNewPayment.process(purchase);
     }
 }

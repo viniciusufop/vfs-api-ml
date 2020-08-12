@@ -1,5 +1,6 @@
 package br.com.vfs.api.ml.purchase;
 
+import br.com.vfs.api.ml.payment.NewPayment;
 import br.com.vfs.api.ml.payment.Payment;
 import br.com.vfs.api.ml.product.Product;
 import br.com.vfs.api.ml.user.User;
@@ -73,9 +74,10 @@ public class Purchase {
         return payments.stream().anyMatch(Payment::isSuccess);
     }
 
-    public void addNewPayment(final @Valid Payment payment) {
-        Assert.isTrue(!containsCodePayment(payment.getCode()), "Payment existing");
+    public void addNewPayment(final @Valid NewPayment newPayment) {
+        Assert.isTrue(!containsCodePayment(newPayment.getCodePayment()), "Payment existing");
         Assert.isTrue(!isFinally(), "Purchase finally");
+        final var payment = newPayment.toModel(this);
         this.payments.add(payment);
     }
 
