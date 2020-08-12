@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.util.Assert;
 
@@ -26,9 +27,6 @@ import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static br.com.vfs.api.ml.payment.PaymentStatus.ERRO;
-import static br.com.vfs.api.ml.payment.PaymentStatus.SUCESSO;
-
 @Data
 @Entity
 @NoArgsConstructor
@@ -42,11 +40,14 @@ public class Payment {
     @CreatedDate
     @PastOrPresent
     private LocalDateTime createAt;
+    @LastModifiedDate
+    @PastOrPresent
+    private LocalDateTime updateAt;
     @NotNull
     @ManyToOne(optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Purchase purchase;
     @NotBlank
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String code;
     @NotNull
     @Column(nullable = false)

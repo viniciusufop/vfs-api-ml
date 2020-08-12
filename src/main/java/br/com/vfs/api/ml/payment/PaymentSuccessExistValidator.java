@@ -18,14 +18,12 @@ public class PaymentSuccessExistValidator implements Validator {
     @Override
     public void validate(final Object target, final Errors errors) {
         final var newPayment = (NewPayment) target;
-        if(Objects.isNull(newPayment.getCodePayment()) ||
-                Objects.isNull(newPayment.getIdPurchase())) return;
-        paymentRepository.findByCodeAndPurchase_Id(newPayment.getCodePayment(), newPayment.getIdPurchase())
-                .ifPresent(payment -> {
-                    if(payment.isSuccess()){
-                        errors.rejectValue("codePayment",
-                                "br.com.vfs.api.ml.bean-validation.payment-already-successfully-processed",
-                                "Payment already successfully processed");
-                    }});
+        if(Objects.isNull(newPayment.getCodePayment())) return;
+        if(paymentRepository.existsByCodeAndStatus(newPayment.getCodePayment(),
+                PaymentStatus.SUCESSO)) {
+            errors.rejectValue("codePayment",
+                    "br.com.vfs.api.ml.bean-validation.payment-already-successfully-processed",
+                    "Payment already successfully processed");
+        }
     }
 }
