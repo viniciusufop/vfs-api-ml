@@ -42,6 +42,7 @@ public class ControllerTest extends TestContainerTest {
     private static final String URL_QUESTION = "/api/question";
     private static final String URL_PURCHASE = "/api/purchase";
     private static final String URL_PAYMENT_PAYPAL = "/api/payment-paypal";
+    private static final String URL_PAYMENT_PAGSEGURO = "/api/payment-pagseguro";
 
     private static String token;
     @Autowired private MockMvc mvc;
@@ -247,18 +248,145 @@ public class ControllerTest extends TestContainerTest {
 
     @Test
     @Order(14)
-    @DisplayName("paypal payment from purchase")
+    @DisplayName("paypal fail payment from purchase")
     void testPaymentPaypalOne() throws Exception {
         final var builder = post(URL_PAYMENT_PAYPAL)
                 .content("{\n" +
-                        "  \"idPurchase\": \"1\",\n" +
-                        "  \"codePayment\": 11234567,\n" +
-                        "  \"status\": 1\n" +
+                        "  \"idPurchase\": 1,\n" +
+                        "  \"codePayment\": \"11234567\",\n" +
+                        "  \"status\": 0\n" +
                         "}")
-                .header(HEADER_STRING, token)
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON);
         final var resultCreated = mvc.perform(builder).andExpect(status().isOk()).andReturn();
         assertNotNull(resultCreated.getResponse().getContentAsString(),"Invalid message return");
     }
+
+    @Test
+    @Order(15)
+    @DisplayName("paypal sucess payment from purchase")
+    void testPaymentPaypalTwo() throws Exception {
+        final var builder = post(URL_PAYMENT_PAYPAL)
+                .content("{\n" +
+                        "  \"idPurchase\": 1,\n" +
+                        "  \"codePayment\": \"112345671231\",\n" +
+                        "  \"status\": 1\n" +
+                        "}")
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON);
+        final var resultCreated = mvc.perform(builder).andExpect(status().isOk()).andReturn();
+        assertNotNull(resultCreated.getResponse().getContentAsString(),"Invalid message return");
+    }
+
+    @Test
+    @Order(16)
+    @DisplayName("fail payment by purchase is finally")
+    void testPaymentPaypalThree() throws Exception {
+        final var builder = post(URL_PAYMENT_PAYPAL)
+                .content("{\n" +
+                        "  \"idPurchase\": 1,\n" +
+                        "  \"codePayment\": \"1123456712312\",\n" +
+                        "  \"status\": 1\n" +
+                        "}")
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON);
+        final var resultCreated = mvc.perform(builder).andExpect(status().isBadRequest()).andReturn();
+        assertNotNull(resultCreated.getResponse().getContentAsString(),"Invalid message return");
+    }
+
+    @Test
+    @Order(17)
+    @DisplayName("purchase from product")
+    void testPurchaseThree() throws Exception {
+        final var builder = post(URL_PURCHASE)
+                .content("{\n" +
+                        "  \"gateway\": \"PAGSEGURO\",\n" +
+                        "  \"idProduct\": 1,\n" +
+                        "  \"quantity\": 20\n" +
+                        "}")
+                .header(HEADER_STRING, token)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON);
+        final var resultCreated = mvc.perform(builder).andExpect(status().isFound()).andReturn();
+        assertNotNull(resultCreated.getResponse().getContentAsString(),"Invalid message return");
+    }
+
+    @Test
+    @Order(18)
+    @DisplayName("payment error by purchase")
+    void testPaymentPagSeguroOne() throws Exception {
+        final var builder = post(URL_PAYMENT_PAGSEGURO)
+                .content("{\n" +
+                        "  \"idPurchase\": 2,\n" +
+                        "  \"codePayment\": \"432asd23423\",\n" +
+                        "  \"status\": \"ERRO\"\n" +
+                        "}")
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON);
+        final var resultCreated = mvc.perform(builder).andExpect(status().isOk()).andReturn();
+        assertNotNull(resultCreated.getResponse().getContentAsString(),"Invalid message return");
+    }
+
+    @Test
+    @Order(19)
+    @DisplayName("fail payment exit process")
+    void testPaymentPagSeguroTwo() throws Exception {
+        final var builder = post(URL_PAYMENT_PAGSEGURO)
+                .content("{\n" +
+                        "  \"idPurchase\": 2,\n" +
+                        "  \"codePayment\": \"432asd23423\",\n" +
+                        "  \"status\": \"ERRO\"\n" +
+                        "}")
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON);
+        final var resultCreated = mvc.perform(builder).andExpect(status().isBadRequest()).andReturn();
+        assertNotNull(resultCreated.getResponse().getContentAsString(),"Invalid message return");
+    }
+
+    @Test
+    @Order(20)
+    @DisplayName("payment success by purchase")
+    void testPaymentPagSeguroThree() throws Exception {
+        final var builder = post(URL_PAYMENT_PAGSEGURO)
+                .content("{\n" +
+                        "  \"idPurchase\": 2,\n" +
+                        "  \"codePayment\": \"432asd23423asda\",\n" +
+                        "  \"status\": \"SUCESSO\"\n" +
+                        "}")
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON);
+        final var resultCreated = mvc.perform(builder).andExpect(status().isOk()).andReturn();
+        assertNotNull(resultCreated.getResponse().getContentAsString(),"Invalid message return");
+    }
+
+    @Test
+    @Order(21)
+    @DisplayName("mock system invoice")
+    void testOtherSystemMockOne() throws Exception {
+        final var builder = post("/mock/invoice")
+                .content("{\n" +
+                        "  \"idPurchase\": \"2\",\n" +
+                        "  \"idBuyer\": 1\n" +
+                        "}")
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON);
+        final var resultCreated = mvc.perform(builder).andExpect(status().isOk()).andReturn();
+        assertNotNull(resultCreated.getResponse().getContentAsString(),"Invalid message return");
+    }
+
+    @Test
+    @Order(22)
+    @DisplayName("mock system ranking vendor")
+    void testOtherSystemMockTwo() throws Exception {
+        final var builder = post("/mock/ranking-vendor")
+                .content("{\n" +
+                        "  \"idPurchase\": \"2\",\n" +
+                        "  \"idVendor\": 1\n" +
+                        "}")
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON);
+        final var resultCreated = mvc.perform(builder).andExpect(status().isOk()).andReturn();
+        assertNotNull(resultCreated.getResponse().getContentAsString(),"Invalid message return");
+    }
+
 }

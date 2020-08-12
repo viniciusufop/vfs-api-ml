@@ -24,7 +24,7 @@ public class PaymentController {
     private final PurchaseRepository purchaseRepository;
     private final ProcessEventNewPayment processEventNewPayment;
 
-    @InitBinder("newPayment")
+    @InitBinder
     public void init(final WebDataBinder dataBinder){
         dataBinder.addValidators(new PurchasePaymentValidator(purchaseRepository));
         dataBinder.addValidators(new PaymentSuccessExistValidator(purchaseRepository));

@@ -19,11 +19,12 @@ public class PurchasePaymentValidator implements Validator {
     @Override
     public void validate(final Object target, final Errors errors) {
         final var newPayment = (NewPayment) target;
-        if(Objects.isNull(newPayment.getIdPurchase())) return;
-        purchaseRepository.findById(newPayment.getIdPurchase())
-                .ifPresent(purchase -> {
-                    if(purchase.isFinally()){
-                        errors.rejectValue("idPurchase", "br.com.vfs.api.ml.bean-validation.purchase-is-finalized", "Purchase is finalized");
-                    }});
+        if(Objects.nonNull(newPayment.getIdPurchase())) {
+            purchaseRepository.findById(newPayment.getIdPurchase())
+                    .ifPresent(purchase -> {
+                        if(purchase.isFinally()){
+                            errors.rejectValue("idPurchase", "br.com.vfs.api.ml.bean-validation.purchase-is-finalized", "Purchase is finalized");
+                        }});
+        }
     }
 }
