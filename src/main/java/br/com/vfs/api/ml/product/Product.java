@@ -2,7 +2,7 @@ package br.com.vfs.api.ml.product;
 
 import br.com.vfs.api.ml.category.Category;
 import br.com.vfs.api.ml.opinion.Opinion;
-import br.com.vfs.api.ml.question.EmailNotifyService;
+import br.com.vfs.api.ml.shared.integration.EmailNotifyService;
 import br.com.vfs.api.ml.question.NewQuestion;
 import br.com.vfs.api.ml.question.Question;
 import br.com.vfs.api.ml.shared.security.UserLogged;

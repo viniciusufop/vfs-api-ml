@@ -1,6 +1,7 @@
 package br.com.vfs.api.ml.question;
 
 import br.com.vfs.api.ml.product.ProductRepository;
+import br.com.vfs.api.ml.shared.integration.EmailNotifyService;
 import br.com.vfs.api.ml.shared.security.UserLogged;
 import br.com.vfs.api.ml.user.UserRepository;
 import lombok.RequiredArgsConstructor;

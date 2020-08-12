@@ -2,7 +2,7 @@ package br.com.vfs.api.ml.payment;
 
 import br.com.vfs.api.ml.payment.notify.EventPaymentNotify;
 import br.com.vfs.api.ml.purchase.Purchase;
-import br.com.vfs.api.ml.question.EmailNotifyService;
+import br.com.vfs.api.ml.shared.integration.EmailNotifyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

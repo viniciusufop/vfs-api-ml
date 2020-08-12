@@ -1,7 +1,7 @@
 package br.com.vfs.api.ml.purchase;
 
 import br.com.vfs.api.ml.product.ProductRepository;
-import br.com.vfs.api.ml.question.EmailNotifyService;
+import br.com.vfs.api.ml.shared.integration.EmailNotifyService;
 import br.com.vfs.api.ml.shared.security.UserLogged;
 import br.com.vfs.api.ml.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +44,19 @@ public class PurchaseController {
         log.info("M=create, newPurchase={} userLogged={}", newPurchase, userLogged.getUsername());
         final var purchase = newPurchase.toModel(userLogged, userRepository, productRepository);
         purchaseRepository.save(purchase);
-        emailNotifyService.send(purchase);
+        final var bodyEmail = String.format(
+                "Hi %s, \n" +
+                        "\t You received a new purchase by product: \n" +
+                        "Purchase: %s \n" +
+                        "Quantity: %s \n" +
+                        "Product: %s \n" +
+                        "From: %s"
+                , purchase.getProduct().getUser().getLogin()
+                , purchase.getId()
+                , purchase.getQuantity()
+                , purchase.getProduct().getName()
+                , purchase.getBuyer().getLogin());
+        emailNotifyService.send(bodyEmail, purchase.getProduct().getUser());
         return purchase.redirectURL();
     }
 }

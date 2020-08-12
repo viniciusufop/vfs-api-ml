@@ -1,6 +1,7 @@
 package br.com.vfs.api.ml.question;
 
 import br.com.vfs.api.ml.product.Product;
+import br.com.vfs.api.ml.shared.integration.EmailNotifyService;
 import br.com.vfs.api.ml.user.User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,6 +35,18 @@ public class Question implements Serializable {
     }
 
     public void notify(final EmailNotifyService emailNotifyService, final Product product) {
-        emailNotifyService.send(this, product);
+        final var bodyEmail = String.format(
+                "Hi %s, \n" +
+                        "\t You received a new question: \n" +
+                        "Title: %s \n" +
+                        "Product: %s \n" +
+                        "Url: http://my-url-ml/produtcs/%d \n" +
+                        "From: %s"
+                , product.getUser().getLogin()
+                , getTitle()
+                , product.getName()
+                , product.getId()
+                , getUser().getLogin());
+        emailNotifyService.send(bodyEmail, product.getUser());
     }
 }
