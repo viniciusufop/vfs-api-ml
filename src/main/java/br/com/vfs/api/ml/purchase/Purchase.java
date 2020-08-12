@@ -1,10 +1,12 @@
 package br.com.vfs.api.ml.purchase;
 
+import br.com.vfs.api.ml.payment.Payment;
 import br.com.vfs.api.ml.product.Product;
 import br.com.vfs.api.ml.user.User;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.Assert;
 
@@ -17,8 +19,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
+import java.util.Objects;
+import java.util.Set;
 
 @Data
 @Entity
@@ -39,20 +45,18 @@ public class Purchase {
     @NotNull
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private PurchaseStatus status;
-    @NotNull
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
     private PaymentGateway gateway;
     @NotNull
     @ManyToOne
     private User buyer;
+    @ToString.Exclude
+    @OneToMany(mappedBy = "purchase", cascade = CascadeType.MERGE)
+    private Set<Payment> payments;
 
     public Purchase(@NotNull Product product, @NotNull @Positive Integer quantity,
                     @NotNull PaymentGateway gateway, @NotNull User buyer) {
         this.product = product;
         this.quantity = quantity;
-        this.status = PurchaseStatus.STARTED;
         this.gateway = gateway;
         this.buyer = buyer;
     }
@@ -61,16 +65,22 @@ public class Purchase {
         product.removeStock(quantity);
     }
 
-    public String redirectURL(final String urlRedirectConfirm) {
-        Assert.isTrue(StringUtils.isNoneBlank(urlRedirectConfirm), "urlRedirectConfirm is required");
-        return gateway.redirectURL(this, urlRedirectConfirm);
+    public String redirectURL() {
+        return gateway.redirectURL(this);
     }
 
     public boolean isFinally() {
-        return status.isFinally();
+        return payments.stream().anyMatch(Payment::isSuccess);
     }
 
-    public void finalized() {
-        this.status = PurchaseStatus.FINALLY;
+    public void addNewPayment(final @Valid Payment payment) {
+        Assert.isTrue(!containsCodePayment(payment.getCode()), "Payment existing");
+        Assert.isTrue(!isFinally(), "Purchase finally");
+        this.payments.add(payment);
+    }
+
+    public boolean containsCodePayment(final String codePayment) {
+        Assert.isTrue(Objects.nonNull(codePayment), "Code payment not null value");
+        return payments.stream().map(Payment::getCode).anyMatch(codePayment::equals);
     }
 }

@@ -1,4 +1,12 @@
 package br.com.vfs.api.ml.payment;
 
-public class PaymentPaypalStatus {
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
+public enum PaymentPagSeguroStatus {
+    SUCESSO(PaymentStatus.SUCCESS), ERRO(PaymentStatus.ERROR);
+    private final PaymentStatus status;
+
 }

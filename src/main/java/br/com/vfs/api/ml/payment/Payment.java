@@ -1,15 +1,11 @@
 package br.com.vfs.api.ml.payment;
 
-import br.com.vfs.api.ml.payment.notify.PaymentNotify;
 import br.com.vfs.api.ml.purchase.Purchase;
-import br.com.vfs.api.ml.question.EmailNotifyService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.util.Assert;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -25,7 +21,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Entity
@@ -40,9 +35,6 @@ public class Payment {
     @CreatedDate
     @PastOrPresent
     private LocalDateTime createAt;
-    @LastModifiedDate
-    @PastOrPresent
-    private LocalDateTime updateAt;
     @NotNull
     @ManyToOne(optional = false, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Purchase purchase;
@@ -57,25 +49,10 @@ public class Payment {
     public Payment(@NotNull Purchase purchase, @NotBlank String code, @NotNull PaymentStatus status) {
         this.purchase = purchase;
         this.code = code;
-        setNewStatus(status);
-    }
-
-    public void process(final EmailNotifyService emailNotifyService, final List<PaymentNotify> paymentNotifies) {
-        if(status.isPay()){
-            paymentNotifies.forEach(paymentNotify -> paymentNotify.notify(this));
-        }
-        emailNotifyService.send(this);
+        this.status = status;
     }
 
     public boolean isSuccess(){
         return status.isPay();
-    }
-
-    public void setNewStatus(PaymentStatus status){
-        Assert.isTrue(!isSuccess(), "payment already successfully processed");
-        this.status = status;
-        if(isSuccess()){
-            this.purchase.finalized();
-        }
     }
 }

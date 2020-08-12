@@ -1,20 +1,26 @@
 package br.com.vfs.api.ml.payment.notify;
 
-import br.com.vfs.api.ml.payment.Payment;
-import lombok.extern.slf4j.Slf4j;
+import br.com.vfs.api.ml.purchase.Purchase;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
-@Slf4j
+import java.io.Serializable;
+
 @Component
-public class InvoiceNotify implements PaymentNotify {
+public class InvoiceNotify implements EventPaymentNotify {
     @Override
-    public void notify(Payment payment) {
-        log.info("M=notify, payment={} buyer={}", payment.getId(),
-                payment.getPurchase().getBuyer().getId());
-            /*
-            TODO
-            - comunicar com o setor de nota fiscal (id da compra e o id do usuário).
-                    Ideia: criar um endpoint fake para receber essa comunicacao
-             */
+    public void notify(Purchase purchase) {
+        final var invoice = new Invoice(purchase.getBuyer().getId(), purchase.getId());
+        final var restTemplate = new RestTemplate();
+        restTemplate.postForEntity("http://localhost:8080/mock/invoice", invoice, Void.class);
     }
+}
+
+@Getter
+@RequiredArgsConstructor
+class Invoice implements Serializable {
+    private final Long idBuyer;
+    private final Long idPurchase;
 }

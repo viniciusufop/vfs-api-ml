@@ -17,18 +17,15 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 
-import java.util.List;
 
 import static org.springframework.http.HttpStatus.OK;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/payment")
 @RequiredArgsConstructor
 public class PaymentController {
 
     private final PurchaseRepository purchaseRepository;
-    private final PaymentRepository paymentRepository;
     private final EmailNotifyService emailNotifyService;
     private final InvoiceNotify invoiceNotify;
     private final RankingVendorNotify rankingVendorNotify;
@@ -36,15 +33,35 @@ public class PaymentController {
     @InitBinder("newPayment")
     public void init(final WebDataBinder dataBinder){
         dataBinder.addValidators(new PurchasePaymentValidator(purchaseRepository));
-        dataBinder.addValidators(new PaymentSuccessExistValidator(paymentRepository));
+        dataBinder.addValidators(new PaymentSuccessExistValidator(purchaseRepository));
     }
     @ResponseStatus(OK)
     @PostMapping
     @Transactional
-    public void create(@RequestBody @Valid final NewPayment newPayment){
-        log.info("M=create, newPayment={}", newPayment);
-        final var payment = newPayment.toModel(purchaseRepository, paymentRepository);
-        paymentRepository.save(payment);
-        payment.process(emailNotifyService, List.of(invoiceNotify, rankingVendorNotify));
+    @RequestMapping("/api/payment-paypal")
+    public void create(@RequestBody @Valid final NewPaymentPayPal newPayment){
+        process(newPayment);
+    }
+
+    @ResponseStatus(OK)
+    @PostMapping
+    @Transactional
+    @RequestMapping("/api/payment-pagseguro")
+    public void create(@RequestBody @Valid final NewPaymentPagSeguro newPayment){
+        process(newPayment);
+
+    }
+
+    private void process(final NewPayment newPayment){
+        log.info("M=process, newPayment={}", newPayment);
+        final var purchase = purchaseRepository.findById(newPayment.getIdPurchase()).orElseThrow();
+        final var payment = newPayment.toModel(purchase);
+        purchase.addNewPayment(payment);
+        purchaseRepository.save(purchase);
+        if(purchase.isFinally()){
+            invoiceNotify.notify(purchase);
+            rankingVendorNotify.notify(purchase);
+        }
+        emailNotifyService.send(payment);
     }
 }

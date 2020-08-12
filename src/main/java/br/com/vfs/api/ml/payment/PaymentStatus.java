@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum PaymentStatus {
-    ERRO, SUCESSO;
+    ERROR, SUCCESS;
 
     public boolean isPay() {
-        return this.equals(SUCESSO);
+        return this.equals(SUCCESS);
     }
 }
